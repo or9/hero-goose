@@ -16,7 +16,7 @@
 
 ## Endpoints  
 | Methods | URI Endpoints | Params | Responds |
-|--------:|---------------|--------|----------|
+|--------:|:-------------:|:------:|:--------:|
 | `/hostname` | `GET`, `POST`, `PUT`, `DELETE` | `/:NAME`, `/:ADDRESS`, `/:MESSAGE` | `body` `body.message` | `{response}` Entry |
 | `/buildstatus` | `GET`, `POST` | `buildname`, `buildstatus` | SVG of build status, void |  
 
