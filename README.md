@@ -14,17 +14,11 @@
 * `npm stop`  
 * `npm test`  
 
-## Endpoints
-`/hostname` 
-	| __methods__ | GET | POST | PUT | DELETE |  
-	| __URI endpoint__ | / | /:NAME | /:ADDRESS | /:MESSAGE   
-	| __params__ | body | body.message   
-	| __responds__ | Hostname database entry  
-`/buildstatus`  
-	| __methods__ | GET | POST |  
-	| __URI endpoint__ | _/jobname_ | / |   
-	| __parameters__ | | `buildname` `buildstatus` |  
-	| __responds__ | SVG of build status | void |  
+## Endpoints  
+| Methods | URI Endpoints | Params | Responds |
+|--------:|---------------|--------|----------|
+| `/hostname` | `GET`, `POST`, `PUT`, `DELETE` | `/:NAME`, `/:ADDRESS`, `/:MESSAGE` | `body` `body.message` | `{response}` Entry |
+| `/buildstatus` | `GET`, `POST` | `buildname`, `buildstatus` | SVG of build status, void |  
 
 ## Development
 Add `git@heroku.com:[app name here].git` as a new remote  using the git add command (`git add hero git@heroku.com:[app name here].git`)  
