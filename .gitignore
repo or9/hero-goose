@@ -1,0 +1,8 @@
+*.swp
+*.swo
+*.log
+node_modules/
+*.pid
+.data/
+target/
+.DS_Store
