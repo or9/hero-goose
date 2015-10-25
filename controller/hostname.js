@@ -90,7 +90,7 @@ function read (req, res) {
 			return res.send(err);
 		}
 
-		if (!docs || !docs.length) {
+		if (!docs || !Object.keys(docs).length) {
 			return res.status(404).send("Not found");
 		}
 		
