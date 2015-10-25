@@ -69,7 +69,7 @@ function create (req, res) {
  */
 function read (req, res) {
 
-	var NAME = req.params.USERNAME;
+	var NAME = req.params.NAME;
 	var ADDRESS = getAddress(req);
 
 
@@ -107,7 +107,7 @@ function read (req, res) {
 function update (req, res) {
 	// IP will have ":"
 	var IP = req.params.ADDRESS;
-	var NAME = req.params.USERNAME;
+	var NAME = req.params.NAME;
 	var MESSAGE = req.body.message || req.params.MESSAGE;
 	
 	Member.findOneAndUpdate(
