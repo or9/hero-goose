@@ -3,7 +3,7 @@ var Schema = require("mongoose").Schema;
 var hostname = new Schema({
 
     name:       { type: Schema.Types.String },
-    address:    { type: String, index: true },
+    address:    { type: String },
     message:    { type: Schema.Types.String },
     created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: Date.now }
