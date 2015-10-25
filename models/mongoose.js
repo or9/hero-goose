@@ -18,10 +18,12 @@ module.exports = {
 };
 
 var util = require("util");
+var isRemote = !!process.env.MONGOLAB_URI;
+var options = { config: { autoIndex: !isRemote } };
 var url_mongo = process.env.MONGOLAB_URI || "mongodb://localhost:17017";
 util.log("instantiating goose at " + url_mongo);
 
-mongoose.connect(url_mongo);
+mongoose.connect(url_mongo, options);
 
 var db = mongoose.connection;
 
