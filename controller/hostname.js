@@ -113,17 +113,20 @@ function update (req, res) {
 	Member.findOneAndUpdate(
 		{ name: NAME, address: IP, message: MESSAGE, updated_at: Date.now() }, 
 		
-		{ new: true }, 
+		{ new: true, upsert: true }, 
 
 		respond);
 
 	function respond (err, newDoc) {
+		newDoc = newDoc || {};
+
 		if (err) {
 			return res.send(err);
 		}
 
-		if (!newDoc.length) {
-			return res.status(404).send("Not found");
+		if (!Object.keys(newDoc).length) {
+			create(req, res);
+			//return res.status(404).send("Not found");
 		}
 
 		res.status(200).send(newDoc);
