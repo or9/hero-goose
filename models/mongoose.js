@@ -18,7 +18,7 @@ module.exports = {
 };
 
 var util = require("util");
-var url_mongo = process.env.MONGOHQ_URL || "mongodb://localhost:17017";
+var url_mongo = process.env.MONGOHQ_URL || "mongodb://127.0.0.1:17017";
 util.log("instantiating goose at " + url_mongo);
 
 mongoose.connect(url_mongo);
