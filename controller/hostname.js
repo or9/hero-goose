@@ -69,15 +69,13 @@ function create (req, res) {
  */
 function read (req, res) {
 
-	var name = getName(req);
-	var data;
-
-	console.log("reading");
+	var NAME = req.params.USERNAME;
+	var ADDRESS = getAddress(req);
 
 
-	if (name) {
-		console.log("find single", name);
-		Member.findOne({ name: name }, respond);
+	if (NAME) {
+		console.log("find single", NAME);
+		Member.findOne({ name: NAME, address: ADDRESS }, respond);
 	} else {
 		// seems dangerous
 		console.log("get all");
