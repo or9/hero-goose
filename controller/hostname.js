@@ -26,7 +26,6 @@ module.exports = {
  */
 function create (req, res) {
 
-	var member;
 	var NAME = getName(req);
 	var ADDRESS = getAddress(req);
 	var MESSAGE = req.body.message || req.params.MESSAGE || "";
@@ -51,7 +50,7 @@ function create (req, res) {
 
 	function respond (err, doc) {
 		if (err) {
-			return res.send(err);
+			return res.status(409).json({ err: err });
 		}
 
 		console.log("new entry: ", doc);
