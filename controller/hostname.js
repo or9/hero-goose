@@ -1,70 +1,23 @@
 "use strict";
 var util = require("util");
+var fs = require("fs");
 var goose = require("../models/mongoose").instance;
 var hostnameSchema = require("../models/schema-hostname.js");
 var Member = goose.model("Member", hostnameSchema);
 
 module.exports = {
-	create: create,
+	create: update,
 	read: read,
 	update: update,
 	delete: deleteFn
 };
 
 /**
- * @description Create a new entry in the database
+ * @description get an entry from the database
  * @param {object} request
- * @param {object} request.body
- * @param {string} request.body.name
- * @param {string} request.body.message
- * @param {string} request.body.address
  * @param {object} request.params
  * @param {string} request.params.NAME
  * @param {string} request.params.ADDRESS
- * @param {string} request.params.MESSAGE
- * @return {response} response
- */
-function create (req, res) {
-
-	var NAME = getName(req);
-	var ADDRESS = getAddress(req);
-	var MESSAGE = req.body.message || req.params.MESSAGE || "";
-	console.log("name? ", NAME);
-	console.log("address? ", ADDRESS);
-	// console.log("gimme everything you got", req.connection);
-	// console.log("port? ", req.connection.port);
-
-	Member.create({
-		name: NAME,
-		address: ADDRESS,
-		message: MESSAGE
-	}, respond);
-
-	// Member.findOneAndUpdate(
-	// 	{ name: name, address: address, message: message }, 
-		
-	// 	{ new: true, upsert: true }, 
-
-	// 	respond);
-
-
-	function respond (err, doc) {
-		if (err) {
-			return res.status(409).json({ err: err });
-		}
-
-		console.log("new entry: ", doc);
-
-		res.status(200).send(doc);
-	}
-
-}
-
-/**
- * @description get an entry from the database
- * @param {object} request
- * @param {string} request.param
- * @param {object} response
  * @return {response} response
  */
 function read (req, res) {
@@ -72,27 +25,33 @@ function read (req, res) {
 	var NAME = req.params.NAME;
 	var ADDRESS = getAddress(req);
 
-
-	if (NAME) {
-		console.log("find single", NAME);
-		Member.findOne({ name: NAME, address: ADDRESS }, respond);
+	if (!req.params.NAME && !req.params.ADDRESS) {
+		Member.find({}, respondWithMembers);
 	} else {
-		// seems dangerous
-		console.log("get all");
-		Member.find({}, respond);
+		fs.readFile(getFilename(NAME, ADDRESS), respond);
 	}
 
-	function respond (err, docs) {
-		console.log("responding with docs", err, docs);
+	function respondWithMembers (err, docs) {
 		if (err) {
 			return res.send(err);
 		}
 
-		if (!docs || !Object.keys(docs).length) {
-			return res.status(404).send("Not found");
-		}
-		
 		res.status(200).send(docs);
+	}
+
+	function respond (readfileResponse) {
+		console.log("read respond: ", readfileResponse);
+
+		var fileNotFound = readfileResponse && readfileResponse.code === "ENOENT";
+		if (fileNotFound) {
+			return res.status(404).send({
+				errno: readfileResponse.errno,
+				code: readfileResponse.code
+			});
+		}
+
+		res.status(200).send(readfileResponse);
+
 	}
 
 }
@@ -100,44 +59,77 @@ function read (req, res) {
 /**
  * @description Update an entry's IP address or name
  * @param {object} request
- * @param {string} request.param
- * @param {object} response
+ * @param {object} request.params
+ * @param {string} request.params.NAME
+ * @param {string} request.params.MESSAGE
+ * @param {Document} request.body
  * @return {response} response
  */
 function update (req, res) {
-	// IP will have ":"
-	var IP = req.params.ADDRESS;
-	var NAME = req.params.NAME;
-	var MESSAGE = req.body.message || req.params.MESSAGE;
-	
-	Member.findOneAndUpdate(
-		{ name: NAME, address: IP, message: MESSAGE, updated_at: Date.now() }, 
-		
-		{ new: true, upsert: true }, 
+	var IP = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+	var NAME = req.params.NAME
+	var MESSAGE = req.params.MESSAGE;
+	var rawData;
 
-		respond);
+
+	var findMemberCriteria = {
+		name: NAME,
+		address: IP
+	};
+
+	var updateMemberFields = {
+		name: NAME,
+		address: IP,
+		message: MESSAGE
+	};
+
+	for (var key in findMemberCriteria) {
+		if (findMemberCriteria[key] === null || findMemberCriteria[key] === undefined) {
+			delete findMemberCriteria[key];
+		}
+	}
+
+	req.on("data", save);
+
+	
+	Member.findOneAndUpdate(findMemberCriteria, 
+				updateMemberFields,
+				{ new: true, upsert: true }, 
+				respond);
+
+	function save (chunk) {
+		console.log("chunkit", chunk);
+		rawData = chunk;
+	}
 
 	function respond (err, newDoc) {
 		newDoc = newDoc || {};
+
+		if (!!rawData) {
+			MESSAGE = rawData + "\r";
+		}
+
+		var stream = fs.createWriteStream(getFilename(NAME, IP));
+		stream.write(MESSAGE);
+		stream.end();
 
 		if (err) {
 			return res.send(err);
 		}
 
-		if (!Object.keys(newDoc).length) {
-			create(req, res);
-			//return res.status(404).send("Not found");
-		}
+		return res.status(200).send(newDoc);
 
-		res.status(200).send(newDoc);
 	}
 
 }
 
+
 /**
  * @description delete a row
  * @param {object} request
- * @param {string} request.param
+ * @param {object} request.params
+ * @param {string} request.params.NAME
+ * @param {string} request.params.ADDRESS
  * @param {object} response
  * @return {response} response
  */
@@ -161,12 +153,22 @@ function deleteFn (req, res) {
 
 }
 
+function getFilename (entryName, entryAddress) {
+	console.log("entryAddress? ", entryAddress);
+
+	entryAddress = entryAddress.replace(/:/g, "-");
+
+	var filename = __dirname.concat("/../").concat("public/hostname/").concat([entryName, entryAddress].join("_")).concat(".html");
+	console.log("filename? ", filename);
+	return filename;
+}
+
 function getName (req) {
 	return req.params.NAME || req.body.name || "anonymous";
 }
 
 function getAddress (req) {
-	return req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+	return req.params.ADDRESS || req.headers["x-forwarded-for"] || req.connection.remoteAddress;
 }
 
 function updateIpAddress (req, res) {
@@ -176,3 +178,4 @@ function updateIpAddress (req, res) {
 function updateName (req, res) {
 	return res.status(200).send();
 }
+

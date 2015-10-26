@@ -6,3 +6,4 @@ node_modules/
 .data/
 target/
 .DS_Store
+public/hostname/*.html
