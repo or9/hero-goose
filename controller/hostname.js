@@ -28,7 +28,7 @@ function read (req, res) {
 	if (!req.params.NAME && !req.params.ADDRESS) {
 		Member.find({}, respondWithMembers);
 	} else {
-		fs.readFile(getFilename(NAME, ADDRESS), respond);
+		fs.readFile(getFilename(NAME, ADDRESS), respondWithFile);
 	}
 
 	function respondWithMembers (err, docs) {
@@ -39,7 +39,7 @@ function read (req, res) {
 		res.status(200).send(docs);
 	}
 
-	function respond (readfileResponse) {
+	function respondWithFile (readfileResponse) {
 		console.log("read respond: ", readfileResponse);
 
 		var fileNotFound = readfileResponse && readfileResponse.code === "ENOENT";
