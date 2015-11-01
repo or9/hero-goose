@@ -33,6 +33,7 @@ Example usage with `client` and `server` actors
 	var xhr = new XMLHttpRequest();
 	var iframe = doc.querySelector("#test");
 	var interval = 3000;
+	// "localhost" for local dev. Use a remote URI for actual application
 	var baseUri = "http://localhost:3000";
 	var endpoint = "/hostname/[yourAppName]";
 	var uri = baseUri + endpoint;
