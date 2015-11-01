@@ -39,10 +39,9 @@ function read (req, res) {
 		res.status(200).send(docs);
 	}
 
-	function respondWithFile (readfileResponse) {
-		console.log("read respond: ", readfileResponse);
+	function respondWithFile (err, readfileResponse) {
 
-		var fileNotFound = readfileResponse && readfileResponse.code === "ENOENT";
+		var fileNotFound = err && err.code === "ENOENT";
 		if (fileNotFound) {
 			return res.status(404).send({
 				errno: readfileResponse.errno,
