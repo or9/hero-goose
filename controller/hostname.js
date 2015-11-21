@@ -44,8 +44,8 @@ function read (req, res) {
 		var fileNotFound = err && err.code === "ENOENT";
 		if (fileNotFound) {
 			return res.status(404).send({
-				errno: readfileResponse.errno,
-				code: readfileResponse.code
+				errno: err.errno,
+				code: err.code
 			});
 		}
 
@@ -108,6 +108,7 @@ function update (req, res) {
 			MESSAGE = rawData + "\r";
 		}
 
+		console.log("writing file", getFilename(NAME, IP));
 		var stream = fs.createWriteStream(getFilename(NAME, IP));
 		stream.write(MESSAGE);
 		stream.end();
