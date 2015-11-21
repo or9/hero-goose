@@ -90,6 +90,8 @@ function update (req, res) {
 
 	req.on("data", save);
 
+	console.log("writing data");
+
 	
 	Member.findOneAndUpdate(findMemberCriteria, 
 				updateMemberFields,
@@ -102,6 +104,7 @@ function update (req, res) {
 	}
 
 	function respond (err, newDoc) {
+		console.log("respond: ", err, newDoc);
 		newDoc = newDoc || {};
 
 		if (!!rawData) {
@@ -114,8 +117,11 @@ function update (req, res) {
 		stream.end();
 
 		if (err) {
+			console.log("yes ,err. ", err);
 			return res.send(err);
 		}
+
+		console.log("no err", newDoc);
 
 		return res.status(200).send(newDoc);
 
