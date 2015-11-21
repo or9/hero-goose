@@ -8,8 +8,8 @@
     "test": "./newman.sh"
   },
   "dependencies": {
-    "body-parser": "~1",
-    "cookie-parser": "~1",
+    "body-parser": "*",
+    "cookie-parser": "*",
     "debug": "^1",
     "dummy-json": "*",
     "express": "~4",
@@ -17,7 +17,7 @@
     "mongodb": "~2",
     "mongoose": "~4",
     "morgan": "~1",
-    "multer": "^0.1.8",
+    "multer": "*",
     "serve-favicon": "~2",
     "xml2js": "*"
   },
