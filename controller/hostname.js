@@ -92,8 +92,8 @@ function update (req, res) {
 
 	console.log("writing data");
 
-	console.log("the whole request", request);
-	console.log("request body? ", request.body);
+	console.log("the whole request", req);
+	console.log("request body? ", req.body);
 
 	
 	Member.findOneAndUpdate(findMemberCriteria, 
