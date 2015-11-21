@@ -102,6 +102,7 @@ function update (req, res) {
 				respond);
 
 	function save (chunk) {
+		console.log("chunk to string? ", chunk.toString());
 		console.log("chunkit", chunk);
 		rawData = chunk;
 	}
