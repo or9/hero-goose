@@ -70,6 +70,7 @@ function update (req, res) {
 	var MESSAGE = req.params.MESSAGE;
 	var rawData;
 
+	var stream = fs.createWriteStream(getFilename(NAME, IP));
 
 	var findMemberCriteria = {
 		name: NAME,
@@ -90,21 +91,16 @@ function update (req, res) {
 
 	req.on("data", save);
 
-	console.log("writing data");
-
-	console.log("the whole request", req);
-	console.log("request body? ", req.body);
-
-	
 	Member.findOneAndUpdate(findMemberCriteria, 
 				updateMemberFields,
 				{ new: true, upsert: true }, 
 				respond);
 
 	function save (chunk) {
-		console.log("chunk to string? ", chunk.toString());
-		console.log("chunkit", chunk);
 		rawData = chunk;
+
+		stream.write(chunk);
+		//stream.end();
 	}
 
 	function respond (err, newDoc) {
@@ -115,15 +111,6 @@ function update (req, res) {
 			MESSAGE = rawData + "\r";
 		}
 
-		console.log("writing file", getFilename(NAME, IP));
-		var stream = fs.createWriteStream(getFilename(NAME, IP));
-		try {
-			stream.write(MESSAGE);
-			stream.end();
-		} catch (err) {
-			console.log("caught err trying to write stream: ", err);
-		}
-
 		if (err) {
 			console.log("yes ,err. ", err);
 			return res.send(err);
@@ -131,6 +118,7 @@ function update (req, res) {
 
 		console.log("no err", newDoc);
 
+		//stream.end();
 		return res.status(200).send(newDoc);
 
 	}
@@ -172,7 +160,7 @@ function getFilename (entryName, entryAddress) {
 
 	entryAddress = entryAddress.replace(/:/g, "-");
 
-	var filename = __dirname.concat("/../").concat("public/hostname/").concat([entryName, entryAddress].join("_")).concat(".html");
+	var filename = __dirname.concat("/../").concat("public/hostname/").concat(entryName).concat(".html");
 	console.log("filename? ", filename);
 	return filename;
 }
