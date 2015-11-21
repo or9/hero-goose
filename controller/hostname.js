@@ -113,8 +113,12 @@ function update (req, res) {
 
 		console.log("writing file", getFilename(NAME, IP));
 		var stream = fs.createWriteStream(getFilename(NAME, IP));
-		stream.write(MESSAGE);
-		stream.end();
+		try {
+			stream.write(MESSAGE);
+			stream.end();
+		} catch (err) {
+			console.log("caught err trying to write stream: ", err);
+		}
 
 		if (err) {
 			console.log("yes ,err. ", err);
