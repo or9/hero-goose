@@ -1,45 +1,46 @@
 {
-  "name": "roadside-romeo",
-  "version": "1.0.0",
-  "private": true,
-  "scripts": {
-    "start": "./db.sh start",
-    "stop": "./db.sh stop",
-    "test": "./newman.sh"
-  },
-  "dependencies": {
-    "body-parser": "*",
-    "cookie-parser": "*",
-    "debug": "^1",
-    "dummy-json": "*",
-    "express": "~4",
-    "jade": "*",
-    "mongodb": "~2",
-    "mongoose": "~4",
-    "morgan": "~1",
-    "multer": "*",
-    "serve-favicon": "~2",
-    "xml2js": "*"
-  },
-  "devDependencies": {
-    "newman": "^1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/or9/roadside-romeo"
-  },
-  "description": "example application for Postman, Newman, Superagent, request, response demo app",
-  "main": "app.js",
-  "keywords": [
-    "express",
-    "postman",
-    "newman",
-    "superagent"
+	"name": "roadside-romeo",
+	"version": "1.0.0",
+	"private": true,
+	"scripts": {
+		"prestart": "",
+		"start": "./db.sh start",
+		"stop": "./db.sh stop",
+		"test": "./newman.sh"
+	},
+	"dependencies": {
+		"body-parser": "*",
+		"cookie-parser": "*",
+		"debug": "^1",
+		"dummy-json": "*",
+		"express": "~4",
+		"jade": "*",
+		"mongodb": "~2",
+		"mongoose": "~4",
+		"morgan": "~1",
+		"multer": "*",
+		"serve-favicon": "~2",
+		"xml2js": "*"
+	},
+	"devDependencies": {
+		"newman": "^1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/or9/roadside-romeo"
+	},
+	"description": "example application for Postman, Newman, Superagent, request, response demo app",
+	"main": "app.js",
+	"keywords": [
+		"express",
+		"postman",
+		"newman",
+		"superagent"
   ],
   "author": "Drahman A.",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/or9/roadside-romeo/issues"
+	  "url": "https://github.com/or9/roadside-romeo/issues"
   },
   "homepage": "https://github.com/or9/roadside-romeo"
 }
