@@ -12,6 +12,7 @@ var router = {
 };
 var util = require("util");
 var multer = require("multer");
+var storage = multer.memoryStorage();
 
 var app = express();
 
@@ -29,7 +30,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(multer().single());
+app.use(multer({ storage: storage }).array());
 
 require("express").Router().all("/", homeRender);
 app.use('/buildstatus', router.buildStatus);
