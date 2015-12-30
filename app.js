@@ -29,7 +29,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(multer());
+app.use(multer().single());
 
 require("express").Router().all("/", homeRender);
 app.use('/buildstatus', router.buildStatus);
