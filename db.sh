@@ -4,8 +4,6 @@ DIRECTORY=.data
 PORT=17017
 
 function start() {
-	git pull
-	npm install
 
 	if [ ! -d "$DIRECTORY" ]; then
 		mkdir $DIRECTORY
@@ -17,6 +15,7 @@ function start() {
 }
 
 function stop() {
+
 	PIDFILE=./mongodb.pid
 	PID=$(cat $PIDFILE)
 	pkill -signal SIGINT roadside-romeo
@@ -25,6 +24,7 @@ function stop() {
 	if [ -f "./mongodb.pid" ]; then
 		rm -v ./mongodb.pid
 	fi
+
 }
 
 $1
