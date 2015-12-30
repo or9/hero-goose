@@ -4,6 +4,8 @@ var fs = require("fs");
 var goose = require("../models/mongoose").instance;
 var hostnameSchema = require("../models/schema-hostname.js");
 var Member = goose.model("Member", hostnameSchema);
+var jsdiff = require("diff");
+require("colors");
 
 module.exports = {
 	create: update,
@@ -28,28 +30,38 @@ function read (req, res) {
 	if (!req.params.NAME && !req.params.ADDRESS) {
 		Member.find({}, respondWithMembers);
 	} else {
-		fs.readFile(getFilename(NAME, ADDRESS), respondWithFile);
+		Member.findOne({ name: NAME },
+			    respondWithDoc);
+		//fs.readFile(getFilename(NAME, ADDRESS), respondWithFile);
 	}
 
 	function respondWithMembers (err, docs) {
-		if (err) {
-			return res.send(err);
-		}
+		if (err) return res.send(err);
+
+		console.log("read >> respondWithMembers >> is updated? ", docs.isUpdated);
 
 		res.status(200).send(docs);
 	}
 
-	function respondWithFile (err, readfileResponse) {
+	function respondWithDoc (err, doc) {
+		var responseData;
 
-		var fileNotFound = err && err.code === "ENOENT";
-		if (fileNotFound) {
-			return res.status(404).send({
-				errno: err.errno,
-				code: err.code
-			});
+		if (err) return res.send(err);
+
+		if (!doc) return res.status(404).send();
+
+		console.log("read >> respond with doc isUpdated? >>", doc.isUpdated);
+		doc.message = doc.message || "no content";
+
+		if (!doc.isUpdated) {
+			console.log("read >> not modified >> 304");
+			return res.status(304).end();
+			//return res.status(200).send(doc.message.toString());
 		}
 
-		res.status(200).send(readfileResponse);
+		responseData = doc.message.toString();
+
+		res.status(200).send(responseData);
 
 	}
 
@@ -79,8 +91,7 @@ function update (req, res) {
 
 	var updateMemberFields = {
 		name: NAME,
-		address: IP,
-		message: MESSAGE
+		address: IP
 	};
 
 	for (var key in findMemberCriteria) {
@@ -91,35 +102,80 @@ function update (req, res) {
 
 	req.on("data", save);
 
-	Member.findOneAndUpdate(findMemberCriteria, 
-				updateMemberFields,
-				{ new: true, upsert: true }, 
-				respond);
-
 	function save (chunk) {
+
 		rawData = chunk;
 
-		stream.write(chunk);
-		//stream.end();
+		//stream.write(chunk);
+
+		var updateMemberFields = {
+			message: chunk
+		};
+		
+		Member.findOne({name: NAME}, foundOne);
+
+		function foundOne (err, doc) {
+			var diff = [];
+			if (err) return respond(err);
+
+			if (!doc) {
+				console.log("not doc. make new\n");
+				doc = new Member();
+				doc.name = NAME;
+				doc.address = IP;
+				doc.isUpdated = true;
+				console.log("\twrite >> foundOne >> save new doc\n\n");
+			}
+
+			doc.message = doc.message || "";
+
+			if (doc.message.toString() === chunk.toString()) {
+				console.log("write >> foundOne >> save doc not modified");
+				doc.isUpdated = false;
+			} else {
+				diff = jsdiff.diffLines(doc.message.toString(), chunk.toString());
+				diff.forEach(compare);
+				doc.isUpdated = true;
+			}
+
+			doc.message = chunk.toString();
+
+			doc.save(saved);
+
+			function compare (part) {
+				var color = part.added ? "green" :
+					part.removed ? "red" :
+						"grey";
+				if (!part.added && !part.removed) {
+					delete part.value;
+					return;
+				}
+
+				process.stderr.write(part.value[color]);
+			}
+
+		}
+
+		function saved (err, doc) {
+			if (err) return respond(err);
+
+			console.log("\twrite >> saved >> respond with doc");
+
+			respond(err, doc);
+		}
+
 	}
 
+
+
 	function respond (err, newDoc) {
-		console.log("respond: ", err, newDoc);
 		newDoc = newDoc || {};
 
-		if (!!rawData) {
-			MESSAGE = rawData + "\r";
-		}
+		if (err) return res.send(err);
 
-		if (err) {
-			console.log("yes ,err. ", err);
-			return res.send(err);
-		}
+		console.log("\t\t\tPUT >> respond >> no err");
 
-		console.log("no err", newDoc);
-
-		//stream.end();
-		return res.status(200).send(newDoc);
+		res.end();
 
 	}
 
